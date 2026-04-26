@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard Arsip</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f8f5f0;
+    }
+
+    .header {
+      position: sticky; /* 🔥 bikin nempel */
+      top: 0;
+      z-index: 1000;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      background: #6f5e53;
+      color: white;
+
+      padding: 15px 30px;
+      font-size: 20px;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .header-left {
+      font-size: 20px;
+    }
+
+    .header-right select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      background: #f3e9dc;
+      color: #333;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .topbar {
+      margin-bottom: 20px;
+    }
+
+    select {
+      padding: 8px;
+      border-radius: 6px;
+    }
+
+    .cards {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      flex: 1;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 14px;
+      color: #888;
+    }
+
+    .card p {
+      font-size: 24px;
+      margin: 10px 0 0;
+      font-weight: bold;
+    }
+
+    .chart-container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      height: 500px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      margin-top: 20px;
+      table-layout: auto; /* 🔥 penting */
+      min-width: 800px;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      vertical-align: top; /* biar teks panjang rapi */
+    }
+
+    th {
+      background: #6f5e53;
+      color: white;
+    }
+
+    td {
+      word-break: break-word; /* 🔥 biar gak meluber */
+    }
+
+    th:nth-child(1), td:nth-child(1) {
+      width: 60px;
+    }
+
+    th:nth-child(2), td:nth-child(2) {
+      width: 150px;
+    }
+
+    th:nth-child(4), td:nth-child(4) {
+      width: 80px;
+    }
+
+    th:nth-child(5), td:nth-child(5) {
+      width: 80px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 15px;
+      border-radius: 6px;
+      border: none;
+      background: #c8a97e;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #b8966d;
+    }
+
+    .toggle-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+
+      margin: 20px auto;
+      cursor: pointer;
+
+      color: #6f5e53;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+
+    .toggle-wrapper:hover {
+      opacity: 0.7;
+    }
+
+    #toggleIcon {
+      font-size: 18px;
+      transition: transform 0.3s ease;
+    }
+
+    /* animasi buka tutup */
+    .table-wrapper {
+      max-height: 0;
+      overflow-x: auto;   /* 🔥 penting */
+      overflow-y: hidden; /* tetap hide vertical */
+      transition: max-height 0.4s ease;
+    }
+
+    .table-wrapper.open {
+      max-height: none;
+    }
+
+    /* ===== RESPONSIVE MOBILE ===== */
+    @media (max-width: 768px) {
+
+      .container {
+        padding: 10px;
+      }
+
+      /* HEADER */
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px 15px;
+        font-size: 16px;
+      }
+
+      .header-right {
+        width: 100%;
+      }
+
+      .header-right select {
+        width: 100%;
+      }
+
+      /* CARD jadi ke bawah */
+      .cards {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .card {
+        padding: 15px;
+      }
+
+      .card p {
+        font-size: 20px;
+      }
+
+      /* CHART */
+      .chart-container {
+        height: 260px; /* lebih kecil */
+        padding: 10px;
+      }
+
+      /* TOGGLE */
+      .toggle-wrapper {
+        font-size: 14px;
+      }
+
+      /* TABLE SCROLL */
+      .table-wrapper {
+        -webkit-overflow-scrolling: touch;
+        overflow-x: auto;
+      }
+
+      table {
+        min-width: 700px; /* biar bisa scroll */
+        font-size: 12px;
+      }
+
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="header-left">
+    Dashboard Arsip
+  </div>
+
+  <div class="header-right">
+    <select id="sheetSelector" onchange="loadData()">
+      <option value="GLOBAL">GLOBAL</option>
+      <option value="TPP">UNDANGAN SIDANG TPP</option>
+      <option value="LITMAS">LITMAS</option>
+      <option value="SPB">SURAT PENGAKHIRAN BIMBINGAN</option>
+      <option value="SPerB">SURAT PERKEMBANGAN BIMBINGAN</option>
+      <option value="PB">PB, CB, CMB</option>
+      <option value="LPK">LAPORAN PENERIMAAN KLIEN</option>
+      <option value="BASW">BERITA ACARA SERAH WBP</option>
+      <option value="AAS">ABSENSI APEL SIANG</option>
+      <option value="ACMK">ASIMILASI, CUTI MANGUN KELUARGA</option>
+      <option value="LD">LEMBAR DISPOSISI</option>
+      <option value="LB">LAPORAN BULANAN</option>
+    </select>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- CARD -->
+  <div class="cards">
+    <div class="card">
+      <h3>Total Data</h3>
+      <p id="total">0</p>
+    </div>
+    <div class="card">
+      <h3>Total Tahun</h3>
+      <p id="tahunCount">0</p>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-container">
+    <canvas id="myChart"></canvas>
+  </div>
+
+  <div class="toggle-wrapper" onclick="toggleTable()">
+    <span id="toggleIcon">▼</span>
+    <span id="toggleText">Lihat Tabel</span>
+  </div>
+
+  <div id="tableWrapper" class="table-wrapper">
+    <table id="dataTable">
+      <thead>
+        <tr id="tableHead"></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const SPREADSHEET_ID = "1nxImhgxczvgjaClI6DOLpSKsVFZleKWe";
+
+const CONFIG = {
+  GLOBAL: {
+    gid: "187873921",
+    columns: {
+      no: 0,
+      jenis: 1,
+      uraian: 2,
+      tahun: 4,
+      jumlah: 5
+    },
+    headers: ["No", "Jenis Arsip", "Uraian", "Tahun", "Jumlah"],
+    hasJumlah: true
+  },
+
+  TPP: {
+    gid: "1891241188",
+    columns: {
+      no: 0,
+      nomor: 1,
+      perihal: 2,
+      asal: 3,
+      tahun: 4
+    },
+    headers: ["No", "Nomor Laporan", "Perihal", "Asal", "Tahun"],
+    hasJumlah: false
+  },
+
+  LITMAS: {
+    gid: "807152532",
+    columns: {
+      no: 0,
+      jenis: 1,
+      uraian: 2,
+      tahun: 7,
+      jumlah: 8
+    },
+    headers: ["No", "Jenis", "Uraian", "Tahun", "Jumlah"],
+    hasJumlah: true
+  },
+
+  SPB: {
+    gid: "1856043793", // ⬅️ ambil dari URL sheet ini
+    columns: {
+      no: 0,
+      jenis: 1,
+      uraian: 2,
+      tahun: 8,   // ⚠️ ini beda dari LITMAS
+      jumlah: 9   // "1 BERKAS"
+    },
+    headers: ["No", "Jenis", "Uraian", "Tahun", "Jumlah"],
+    hasJumlah: true
+  },
+
+  SPerB: {
+    gid: "1353456894", // ⬅️ ambil dari URL sheet ini
+    columns: {
+      no: 0,
+      jenis: 1,
+      uraian: 2,
+      tahun: 7,   // ⚠️ ini beda dari LITMAS
+      jumlah: 8   // "1 BERKAS"
+    },
+    headers: ["No", "Jenis", "Uraian", "Tahun", "Jumlah"],
+    hasJumlah: true
+  },
+
+  PB: {
+    gid: "1965584373", // GID untuk sheet PB, CB, CMB (ganti dengan yang benar)
+    columns: {
+      no: 0,
+      jenis: 1,
+      uraian: 2,
+      tahun: 8,
+      jumlah: 9
+    },
+    headers: ["No", "Jenis", "Uraian", "Tahun", "Jumlah"],
+    hasJumlah: true
+  },
+
+  LPK: {
+    gid: "663703572",
+    columns: {
+      no: 0,
+      nomor: 1,
+      perihal: 2,
+      asal: 3,
+      tahun: 4
+    },
+    headers: ["No", "Nomor", "Perihal", "Asal", "Tahun"],
+    hasJumlah: false
+  },
+
+  BASW: {
+    gid: "448587782", // GID untuk sheet BASW (ganti dengan yang benar)
+    columns: {
+      no: 0,
+      nomor: 1,
+      perihal: 2,
+      asal: 3,
+      tahun: 4,
+      jumlah: 5
+    },
+    headers: ["No", "Nomor", "Perihal", "Asal", "Tahun", "Jumlah"],
+    hasJumlah: false
+  },
+
+  AAS: {
+    gid: "375230911", // GID untuk sheet AAS (ganti dengan yang benar)
+    columns: {
+      no: 0,
+      perihal: 1,
+      asal: 2,
+      tahun: 3
+    },
+    headers: ["No", "Perihal", "Asal", "Tahun"],
+    hasJumlah: false
+  },
+
+  ACMK: {
+    gid: "1924348227", // GID untuk sheet ACMK (ganti dengan yang benar)
+    columns: {
+      no: 0,
+      register: 4,
+      nama: 5,
+      tahun: 9,
+      jumlah: 10
+    },
+    headers: ["No", "Register", "Nama", "Tahun", "Jumlah"],
+    hasJumlah: true
+  },
+
+  LD: { // GID untuk sheet Lembar Disposisi (ganti dengan yang benar)
+    gid: "1135481047",
+    columns: {
+      no: 0,
+      instansi: 1,
+      perihal: 3,
+      tahun: 6
+    },
+    headers: ["No", "Nomor", "Perihal", "Tahun"],
+    hasJumlah: false
+  },
+
+  LB: { // GID untuk sheet Laporan Bulanan (ganti dengan yang benar)
+    gid: "132597725", // GID untuk sheet Laporan Bulanan (ganti dengan yang benar)
+    columns: {
+      no: 0,
+      jenis: 1,
+      uraian: 2,
+      tahun: 7,
+      jumlah: 8
+    },
+    headers: ["No", "Jenis", "Uraian", "Tahun", "Jumlah"],
+    hasJumlah: true
+  }
+};
+
+let chart;
+let renderTable = false;
+
+async function loadData() {
+
+  const selected = document.getElementById("sheetSelector").value;
+  const cfg = CONFIG[selected];
+
+  const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=${cfg.gid}`;
+
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.substring(47).slice(0, -2));
+  const rows = json.table.rows;
+
+  const yearMap = {};
+  let total = 0;
+
+  const tbody = document.querySelector("#dataTable tbody");
+  const thead = document.getElementById("tableHead");
+
+  tbody.innerHTML = "";
+  thead.innerHTML = "";
+  let html = "";
+
+  cfg.headers.forEach(h => {
+    thead.innerHTML += `<th>${h}</th>`;
+  });
+
+  rows.forEach(r => {
+
+    if (!r.c) return;
+
+    let no = r.c[cfg.columns.no]?.v;
+    let tahun = r.c[cfg.columns.tahun]?.v;
+    let rawJumlah = r.c[cfg.columns.jumlah]?.v;
+
+    if (selected === "GLOBAL") {
+      if (!no || !tahun) return;
+    }
+
+    if (selected === "TPP") {
+      if (!no || !tahun) return;
+    }
+
+    if (selected === "LITMAS") {
+      if (!tahun) return;
+    }
+
+    if (selected === "SPB") {
+      if (!tahun) return;
+    }
+
+    if (selected === "SPerB") {
+      if (!tahun) return;
+    }
+
+    if (selected === "PB") {
+      if (!tahun) return;
+    }
+
+    if (selected === "LPK") {
+      if (!tahun) return;
+    }
+
+    if (selected === "BASW") {
+      if (!tahun) return;
+    }
+
+    if (selected === "AAS") {
+      if (!tahun) return;
+    }
+
+    if (selected === "ACMK") {
+      if (!tahun) return;
+    }
+
+    if (selected === "LD") {
+      if (!tahun) return;
+    }
+
+    if (selected === "LB") {
+      if (!tahun) return;
+    }
+
+    let jumlah;
+
+    if (selected === "LITMAS" || selected === "SPB" || selected === "SPerB" || selected === "PB" || selected === "LPK" || selected === "AAS" || selected === "ACMK" || selected === "LD" || selected === "LB") {
+      jumlah = 1;
+    } else {
+      jumlah = cfg.hasJumlah
+        ? Number(rawJumlah || 0)
+        : 1;
+    }
+
+    if (!isNaN(jumlah) && jumlah > 0) {
+      total += jumlah;
+    }
+
+    if (!isNaN(jumlah)) {
+      yearMap[tahun] = (yearMap[tahun] || 0) + jumlah;
+    }
+
+    let tr = "<tr>";
+
+    if (selected === "GLOBAL") {
+      tr += `
+        <td>${no || ""}</td>
+        <td>${r.c[cfg.columns.jenis]?.v || ""}</td>
+        <td>${r.c[cfg.columns.uraian]?.v || ""}</td>
+        <td>${tahun || ""}</td>
+        <td>${jumlah || ""}</td>
+      `;
+
+    } else if (selected === "TPP") {
+
+      tr += `
+        <td>${no || ""}</td>
+        <td>${r.c[cfg.columns.nomor]?.v || ""}</td>
+        <td>${r.c[cfg.columns.perihal]?.v || ""}</td>
+        <td>${r.c[cfg.columns.asal]?.v || ""}</td>
+        <td>${tahun || ""}</td>
+      `;
+
+    } else if (selected === "LITMAS") {
+
+      tr += `
+        <td>${no || ""}</td>
+        <td>${r.c[cfg.columns.jenis]?.v || ""}</td>
+        <td>${r.c[cfg.columns.uraian]?.v || ""}</td>
+        <td>${tahun || ""}</td>
+        <td>${jumlah || ""}</td>
+      `;
+    } else if (selected === "SPB") {
+
+      tr += `
+        <td>${no || ""}</td>
+        <td>${r.c[cfg.columns.jenis]?.v || ""}</td>
+        <td>${r.c[cfg.columns.uraian]?.v || ""}</td>
+        <td>${tahun || ""}</td>
+        <td>${jumlah || ""}</td>
+      `;
+    } else if (selected === "SPerB") {
+
+      tr += `
+        <td>${no || ""}</td>
+        <td>${r.c[cfg.columns.jenis]?.v || ""}</td>
+        <td>${r.c[cfg.columns.uraian]?.v || ""}</td>
+        <td>${tahun || ""}</td>
+        <td>${jumlah || ""}</td>
+      `;
+    } else if (selected === "PB") {
+
+      tr += `
+        <td>${no || ""}</td>
+        <td>${r.c[cfg.columns.jenis]?.v || ""}</td>
+        <td>${r.c[cfg.columns.uraian]?.v || ""}</td>
+        <td>${tahun || ""}</td>
+        <td>${jumlah || ""}</td>
+      `;
+    } else if (selected === "LPK") {
+
+      tr += `
+        <td>${no || ""}</td>
+        <td>${r.c[cfg.columns.nomor]?.v || ""}</td>
+        <td>${r.c[cfg.columns.perihal]?.v || ""}</td>
+        <td>${r.c[cfg.columns.asal]?.v || ""}</td>
+        <td>${tahun || ""}</td>
+      `;
+    } else if (selected === "BASW") {
+  
+      tr += `
+        <td>${no || ""}</td>
+        <td>${r.c[cfg.columns.nomor]?.v || ""}</td>
+        <td>${r.c[cfg.columns.perihal]?.v || ""}</td>
+        <td>${r.c[cfg.columns.asal]?.v || ""}</td>
+        <td>${tahun || ""}</td>
+        <td>${jumlah || ""}</td>
+      `;
+    } else if (selected === "AAS") {
+  
+      tr += `
+        <td>${no || ""}</td>
+        <td>${r.c[cfg.columns.perihal]?.v || ""}</td>
+        <td>${r.c[cfg.columns.asal]?.v || ""}</td>
+        <td>${tahun || ""}</td>
+      `;
+    } else if (selected === "ACMK") {
+  
+      tr += `
+        <td>${no || ""}</td>
+        <td>${r.c[cfg.columns.register]?.v || ""}</td>
+        <td>${r.c[cfg.columns.nama]?.v || ""}</td>
+        <td>${tahun || ""}</td>
+        <td>${jumlah || ""}</td>
+      `;
+    } else if (selected === "LD") {
+
+      tr += `
+        <td>${no || ""}</td>
+        <td>${r.c[cfg.columns.instansi]?.v || ""}</td>
+        <td>${r.c[cfg.columns.perihal]?.v || ""}</td>
+        <td>${tahun || ""}</td>
+      `;
+    } else if (selected === "LB") {
+
+      tr += `
+        <td>${no || ""}</td>
+        <td>${r.c[cfg.columns.jenis]?.v || ""}</td>
+        <td>${r.c[cfg.columns.uraian]?.v || ""}</td>
+        <td>${tahun || ""}</td>
+        <td>${jumlah || ""}</td>
+      `;
+    }
+
+    tr += "</tr>";
+    html += tr;
+  });
+
+  if (renderTable) {
+    tbody.innerHTML = html;
+  }
+
+  const labels = Object.keys(yearMap).sort();
+  const data = labels.map(y => yearMap[y]);
+
+  document.getElementById("total").innerText = total;
+  document.getElementById("tahunCount").innerText = labels.length;
+
+  if (chart) chart.destroy();
+
+  chart = new Chart(document.getElementById("myChart"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: selected,
+        data,
+        backgroundColor: "#c8a97e",
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+}
+
+function toggleTable() {
+  const wrapper = document.getElementById("tableWrapper");
+  const icon = document.getElementById("toggleIcon");
+  const text = document.getElementById("toggleText");
+
+  wrapper.classList.toggle("open");
+
+  const isOpen = wrapper.classList.contains("open");
+
+  if (isOpen) {
+    icon.style.transform = "rotate(180deg)";
+    text.innerText = "Sembunyikan Tabel";
+    renderTable = true;
+    loadData(); // isi tabel
+  } else {
+    icon.style.transform = "rotate(0deg)";
+    text.innerText = "Lihat Tabel";
+  }
+}
+
+loadData();
+
+setInterval(() => {
+  loadData();
+}, 15000); // 30 detik
+</script>
+
+</body>
+</html>
