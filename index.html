@@ -316,7 +316,7 @@ const CONFIG = {
       tahun: 4,
       jumlah: 5
     },
-    headers: ["No", "Jenis Arsip", "Uraian", "Tahun", "Jumlah"],
+    headers: ["No", "Jenis Arsip", "Perihal", "Tahun", "Jumlah"],
     hasJumlah: true
   },
 
@@ -342,7 +342,7 @@ const CONFIG = {
       tahun: 7,
       jumlah: 8
     },
-    headers: ["No", "Jenis", "Uraian", "Tahun", "Jumlah"],
+    headers: ["No", "No. Register", "Nama Klien", "Tahun", "Jumlah"],
     hasJumlah: true
   },
 
@@ -355,7 +355,7 @@ const CONFIG = {
       tahun: 8,   // ⚠️ ini beda dari LITMAS
       jumlah: 9   // "1 BERKAS"
     },
-    headers: ["No", "Jenis", "Uraian", "Tahun", "Jumlah"],
+    headers: ["No", "No. Register", "Nama Klien", "Tahun", "Jumlah"],
     hasJumlah: true
   },
 
@@ -368,7 +368,7 @@ const CONFIG = {
       tahun: 7,   // ⚠️ ini beda dari LITMAS
       jumlah: 8   // "1 BERKAS"
     },
-    headers: ["No", "Jenis", "Uraian", "Tahun", "Jumlah"],
+    headers: ["No", "No. Register", "Nama Klien", "Tahun", "Jumlah"],
     hasJumlah: true
   },
 
@@ -381,11 +381,11 @@ const CONFIG = {
       tahun: 8,
       jumlah: 9
     },
-    headers: ["No", "Jenis", "Uraian", "Tahun", "Jumlah"],
+    headers: ["No", "No. Register", "Nama Klien", "Tahun", "Jumlah"],
     hasJumlah: true
   },
 
-  LPK: {
+  LAPORAN PENERIMAAN KLIEN: {
     gid: "663703572",
     columns: {
       no: 0,
@@ -394,11 +394,11 @@ const CONFIG = {
       asal: 3,
       tahun: 4
     },
-    headers: ["No", "Nomor", "Perihal", "Asal", "Tahun"],
+    headers: ["No", "Nomor Laporan", "Perihal", "Asal Laporan", "Tahun"],
     hasJumlah: false
   },
 
-  BASW: {
+  BERITA ACARA SERAH TERIMA KLIEN: {
     gid: "448587782", // GID untuk sheet BASW (ganti dengan yang benar)
     columns: {
       no: 0,
@@ -408,11 +408,11 @@ const CONFIG = {
       tahun: 4,
       jumlah: 5
     },
-    headers: ["No", "Nomor", "Perihal", "Asal", "Tahun", "Jumlah"],
+    headers: ["No", "Nomor Laporan", "Perihal", "Asal Laporan", "Tahun", "Jumlah"],
     hasJumlah: false
   },
 
-  AAS: {
+  ABSENSI APEL SIANG: {
     gid: "375230911", // GID untuk sheet AAS (ganti dengan yang benar)
     columns: {
       no: 0,
@@ -420,11 +420,11 @@ const CONFIG = {
       asal: 2,
       tahun: 3
     },
-    headers: ["No", "Perihal", "Asal", "Tahun"],
+    headers: ["No", "Perihal", "Asal Laporan", "Tahun"],
     hasJumlah: false
   },
 
-  ACMK: {
+  ASIMILASI, CUTI MANGUN KELUARGA: {
     gid: "1924348227", // GID untuk sheet ACMK (ganti dengan yang benar)
     columns: {
       no: 0,
@@ -433,11 +433,11 @@ const CONFIG = {
       tahun: 9,
       jumlah: 10
     },
-    headers: ["No", "Register", "Nama", "Tahun", "Jumlah"],
+    headers: ["No", "No. Register", "Nama", "Tahun", "Jumlah"],
     hasJumlah: true
   },
 
-  LD: { // GID untuk sheet Lembar Disposisi (ganti dengan yang benar)
+  LEMBAR DISPOSISI: { // GID untuk sheet Lembar Disposisi (ganti dengan yang benar)
     gid: "1135481047",
     columns: {
       no: 0,
@@ -445,11 +445,11 @@ const CONFIG = {
       perihal: 3,
       tahun: 6
     },
-    headers: ["No", "Nomor", "Perihal", "Tahun"],
+    headers: ["No", "Nomor Laporan", "Perihal", "Tahun"],
     hasJumlah: false
   },
 
-  LB: { // GID untuk sheet Laporan Bulanan (ganti dengan yang benar)
+  LAPORAN BULANAN: { // GID untuk sheet Laporan Bulanan (ganti dengan yang benar)
     gid: "132597725", // GID untuk sheet Laporan Bulanan (ganti dengan yang benar)
     columns: {
       no: 0,
@@ -458,7 +458,7 @@ const CONFIG = {
       tahun: 7,
       jumlah: 8
     },
-    headers: ["No", "Jenis", "Uraian", "Tahun", "Jumlah"],
+    headers: ["No", "Nomor Laporan", "Perihal", "Tahun", "Jumlah"],
     hasJumlah: true
   }
 };
